@@ -5147,46 +5147,52 @@ var cbanc$snackbar$Snackbar$update = F2(
 			default:
 				var millis = msg.a;
 				var ticks = msg.b;
-				var id = elm$time$Time$posixToMillis(ticks);
-				switch (model.$) {
-					case 'None':
-						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-					case 'Message':
-						var x = model.a;
-						return _Utils_Tuple2(
-							cbanc$snackbar$Snackbar$Message(
-								_Utils_update(
-									x,
-									{id: id})),
-							A2(
-								elm$core$Task$perform,
-								elm$core$Basics$always(
-									cbanc$snackbar$Snackbar$EndDelay(id)),
-								elm$core$Process$sleep(millis)));
-					case 'Href':
-						var x = model.a;
-						return _Utils_Tuple2(
-							cbanc$snackbar$Snackbar$Href(
-								_Utils_update(
-									x,
-									{id: id})),
-							A2(
-								elm$core$Task$perform,
-								elm$core$Basics$always(
-									cbanc$snackbar$Snackbar$EndDelay(id)),
-								elm$core$Process$sleep(millis)));
-					default:
-						var x = model.a;
-						return _Utils_Tuple2(
-							cbanc$snackbar$Snackbar$Action(
-								_Utils_update(
-									x,
-									{id: id})),
-							A2(
-								elm$core$Task$perform,
-								elm$core$Basics$always(
-									cbanc$snackbar$Snackbar$EndDelay(id)),
-								elm$core$Process$sleep(millis)));
+				if (_Utils_eq(
+					cbanc$snackbar$Snackbar$unboxId(model),
+					cbanc$snackbar$Snackbar$default_id)) {
+					var id = elm$time$Time$posixToMillis(ticks);
+					switch (model.$) {
+						case 'None':
+							return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+						case 'Message':
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Message(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+						case 'Href':
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Href(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+						default:
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Action(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+					}
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
 		}
 	});

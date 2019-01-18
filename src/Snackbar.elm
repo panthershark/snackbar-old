@@ -103,22 +103,26 @@ update msg model =
                 ( model, Cmd.none )
 
         StartDelay millis ticks ->
-            let
-                id =
-                    posixToMillis ticks
-            in
-            case model of
-                None ->
-                    ( model, Cmd.none )
+            if unboxId model == default_id then
+                let
+                    id =
+                        posixToMillis ticks
+                in
+                case model of
+                    None ->
+                        ( model, Cmd.none )
 
-                Message x ->
-                    ( Message { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
+                    Message x ->
+                        ( Message { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
 
-                Href x ->
-                    ( Href { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
+                    Href x ->
+                        ( Href { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
 
-                Action x ->
-                    ( Action { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
+                    Action x ->
+                        ( Action { x | id = id }, Task.perform (always <| EndDelay id) <| Process.sleep millis )
+
+            else
+                ( model, Cmd.none )
 
 
 view : Model -> Html Msg

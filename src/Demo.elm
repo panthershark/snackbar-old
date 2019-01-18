@@ -27,7 +27,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateSnackbar sb ->
-            ( { model | snackbar = sb }, Cmd.map SnackMessage <| Snackbar.delay 8000 sb )
+            ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage <| Snackbar.delay 8000 sb )
 
         SnackMessage (Snackbar.ButtonClick action_id) ->
             ( { model | snackbar = Snackbar.None, alert = Just <| action_id ++ " was clicked" }, Cmd.none )

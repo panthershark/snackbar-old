@@ -37,14 +37,14 @@ update msg model =
         Snackage ->
             let
                 ( sb, cmd ) =
-                    Snackbar.message sbDelay "Message only snackbars are used to notify someone. They should make themselves disappear"
+                    Snackbar.message sbDelay "Snackbars should make themselves disappear. This one has an 8 second delay."
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         Snacklink ->
             let
                 ( sb, cmd ) =
-                    Snackbar.link sbDelay "Href snackbars show a button which navigates to a new address" "DOGS" "http://omfgdogs.com"
+                    Snackbar.link sbDelay "Link snackbars show a button which navigates to a new address" "DOGS" "http://omfgdogs.com"
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 

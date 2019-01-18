@@ -1,7 +1,7 @@
 {
-  "name": "community-views",
-  "description": "CBANC Community Views.",
-  "version": "0.20.0",
+  "name": "snackbar",
+  "description": "Snackbar Material Module",
+  "version": "0.1.0",
   "license": "None",
   "repository": {
     "type": "git",

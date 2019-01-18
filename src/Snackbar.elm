@@ -131,23 +131,23 @@ view : Model msg -> Html msg
 view snack =
     case snack of
         Message { str } ->
-            div [ class "snackbar fadein" ]
+            div [ class "snackbar sb_message" ]
                 [ span [] [ text str ]
                 ]
 
         Href { str, btn, ref } ->
-            div [ class "snackbar with_button fadein" ]
+            div [ class "snackbar sb_with_action" ]
                 [ span [] [ text str ]
-                , a [ class "action", href ref ] [ text btn ]
+                , a [ class "sb_action", href ref ] [ text btn ]
                 ]
 
         Action { str, btn, ref } ->
-            div [ class "snackbar with_button fadein" ]
+            div [ class "snackbar sb_with_action" ]
                 [ span [] [ text str ]
-                , span [ class "action", onClick ref ] [ text btn ]
+                , span [ class "sb_action", onClick ref ] [ text btn ]
                 ]
 
         None ->
-            div [ class "snackbar hidden" ]
+            div [ class "snackbar sb_hidden" ]
                 [ span [] [ text " " ]
                 ]

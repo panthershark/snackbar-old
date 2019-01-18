@@ -1,0 +1,30 @@
+{
+  "name": "community-views",
+  "description": "CBANC Community Views.",
+  "version": "0.20.0",
+  "license": "None",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.cbancnetwork.com:web/snackbar.git"
+  },
+  "scripts": {
+    "elm:build": "elm make ./src/Demo.elm --output=./demo/demo.js",
+    "start": "concurrently \"elm-live ./src/Demo.elm --open --dir=./demo -- --debug --output=./demo/demo.js\" \"yarn run sass:build \" \"yarn run sass:watch \"",
+    "sass:build": "node-sass ./src/snackbar.scss -o ./demo",
+    "sass:autoprefixer": "postcss demo/snackbar.css --use autoprefixer -d demo/",
+    "sass:watch": "chokidar 'src/*.scss' -c 'yarn run sass:build && yarn run sass:autoprefixer'",
+    "build": "yarn install && yarn run elm:build && yarn run sass:build",
+    "preversion": "yarn run build",
+    "version": "node version_script.js && git add -A .",
+    "postversion": "git tag $npm_package_version && git tag -d v$npm_package_version && git push && git push --tags"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.4.5",
+    "chokidar-cli": "^1.2.1",
+    "concurrently": "^4.0.1",
+    "elm-live": "^3.2.0",
+    "node-sass": "^4.11.0",
+    "postcss-cli": "^6.1.1"
+  },
+  "dependencies": {}
+}

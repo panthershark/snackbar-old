@@ -12,11 +12,12 @@ type Msg
     | Snacklink
     | Snaction1
     | Snaction2
-    | SnackMessage Snackbar.Msg
+    | SnackMessage (Snackbar.Msg Msg)
+    | EchoAction String
 
 
 type alias Model =
-    { snackbar : Snackbar.Model
+    { snackbar : Snackbar.Model Msg
     , alert : Maybe String
     }
 
@@ -51,34 +52,26 @@ update msg model =
         Snaction1 ->
             let
                 ( sb, cmd ) =
-                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs" "TRY ME" "try me button"
+                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs" "TRY ME" (EchoAction "try me button")
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         Snaction2 ->
             let
                 ( sb, cmd ) =
-                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs. They send a key to the update dn so you can tell which action was trigger." "YO!" "yo button"
+                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs. They send a key to the update dn so you can tell which action was trigger." "YO!" (EchoAction "yo button")
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
+
+        EchoAction str ->
+            ( { model | alert = Just <| str ++ " was clicked" }, Cmd.none )
 
         SnackMessage submsg ->
             let
                 ( sb, cmd ) =
                     Snackbar.update submsg model.snackbar
             in
-            ( { model
-                | snackbar = sb
-                , alert =
-                    case submsg of
-                        Snackbar.ButtonClick action_ref ->
-                            Just <| action_ref ++ " was clicked"
-
-                        _ ->
-                            Nothing
-              }
-            , Cmd.map SnackMessage cmd
-            )
+            ( { model | snackbar = sb }, Cmd.map SnackMessage cmd )
 
 
 view : Model -> Html Msg
@@ -90,7 +83,6 @@ view { snackbar, alert } =
         , button [ onClick Snaction2 ] [ text "Snack Action 2" ]
         , p [] [ text (Maybe.withDefault "" alert) ]
         , Snackbar.view snackbar
-            |> Html.map SnackMessage
         ]
 
 

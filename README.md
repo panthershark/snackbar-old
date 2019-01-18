@@ -22,7 +22,8 @@ type alias Model = {
 }
 
 type Msg = 
-  SnackMessage Snackbar.Msg 
+  SnackMessage (Snackbar.Msg Msg)
+  | CustomAction
 
 
 update msg model = 
@@ -33,6 +34,9 @@ update msg model =
                     Snackbar.message (Just 8000) "Hello World!"
             in
             ( { model | snackbar = sb }, Cmd.map SnackMessage cmd )
+            
+        CustomAction -> 
+          (model, doSomething)
 ```
 
 ### Snackbar with no action button
@@ -51,7 +55,7 @@ Snackbar.link (Just 8000) "I'm a message with a link to a url" "YO" "http://giph
 In this case, the action_ref is passed to the Snackbar.Msg of `ButtonClick action_ref`. Using this action_ref, an application that could handle multiple actions can distinguish events/intent from different snackbars.
 
 ```
-Snackbar.action (Just 8000) "I'm a message that triggers an action in the app" "WOAH" "action_ref"
+Snackbar.action (Just 8000) "I'm a message that triggers an action in the app" "WOAH" CustomAction
 ```
 
 ### Snackbar that shows indefinitely

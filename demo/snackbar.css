@@ -11,18 +11,18 @@
   width: 344px;
   min-height: 48px;
   padding: 0 8px 0 16px; }
-  .snackbar.fadein {
+  .snackbar.sb_message, .snackbar.sb_with_action {
     opacity: 1; }
-  .snackbar.hidden {
+  .snackbar.sb_hidden {
     display: none; }
   .snackbar span,
   .snackbar a {
     color: #fff;
     margin: auto 0;
     padding: 8px 0; }
-  .snackbar.with_button span {
+  .snackbar.sb_with_action span {
     width: 280px; }
-  .snackbar.with_button .action {
+  .snackbar.sb_with_action .sb_action {
     color: #64b5f6;
     cursor: pointer;
     width: 64px;

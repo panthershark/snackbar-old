@@ -1,4 +1,4 @@
-module Snackbar exposing (Model, Msg(..), action, hidden, link, message, update, view)
+module Snackbar exposing (Model, Msg, action, hidden, link, message, update, view)
 
 import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class, href, id)
@@ -8,7 +8,13 @@ import Task
 import Time exposing (Posix, now, posixToMillis)
 
 
-type alias WithAction =
+type alias WithAction msg =
+    { btn : String
+    , ref : msg
+    }
+
+
+type alias WithHref =
     { btn : String
     , ref : String
     }
@@ -21,16 +27,15 @@ type alias Snack a =
     }
 
 
-type Model
+type Model msg
     = None
     | Message (Snack {})
-    | Href (Snack WithAction)
-    | Action (Snack WithAction)
+    | Href (Snack WithHref)
+    | Action (Snack (WithAction msg))
 
 
-type Msg
-    = ButtonClick String
-    | EndDelay Int
+type Msg msg
+    = EndDelay Int
     | StartDelay Float Posix
 
 
@@ -39,12 +44,12 @@ default_id =
     -1
 
 
-message : Maybe Float -> String -> ( Model, Cmd Msg )
+message : Maybe Float -> String -> ( Model msg, Cmd (Msg msg) )
 message millis str =
     ( Message { str = str, id = default_id }, Maybe.map (\ms -> Task.perform (StartDelay ms) Time.now) millis |> Maybe.withDefault Cmd.none )
 
 
-link : Maybe Float -> String -> String -> String -> ( Model, Cmd Msg )
+link : Maybe Float -> String -> String -> String -> ( Model msg, Cmd (Msg msg) )
 link millis str btn target =
     ( Href
         { str = str
@@ -56,7 +61,7 @@ link millis str btn target =
     )
 
 
-action : Maybe Float -> String -> String -> String -> ( Model, Cmd Msg )
+action : Maybe Float -> String -> String -> msg -> ( Model msg, Cmd (Msg msg) )
 action millis str btn ref =
     ( Action
         { str = str
@@ -68,12 +73,12 @@ action millis str btn ref =
     )
 
 
-hidden : Model
+hidden : Model msg
 hidden =
     None
 
 
-unboxId : Model -> Int
+unboxId : Model msg -> Int
 unboxId model =
     case model of
         Message { id } ->
@@ -89,12 +94,9 @@ unboxId model =
             0
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg msg -> Model msg -> ( Model msg, Cmd (Msg msg) )
 update msg model =
     case msg of
-        ButtonClick action_id ->
-            ( None, Cmd.none )
-
         EndDelay id_to_hide ->
             if unboxId model == id_to_hide then
                 ( None, Cmd.none )
@@ -125,27 +127,27 @@ update msg model =
                 ( model, Cmd.none )
 
 
-view : Model -> Html Msg
+view : Model msg -> Html msg
 view snack =
     case snack of
         Message { str } ->
-            div [ class "snackbar fadein" ]
+            div [ class "snackbar sb_message" ]
                 [ span [] [ text str ]
                 ]
 
         Href { str, btn, ref } ->
-            div [ class "snackbar with_button fadein" ]
+            div [ class "snackbar sb_with_action" ]
                 [ span [] [ text str ]
-                , a [ class "action", href ref ] [ text btn ]
+                , a [ class "sb_action", href ref ] [ text btn ]
                 ]
 
         Action { str, btn, ref } ->
-            div [ class "snackbar with_button fadein" ]
+            div [ class "snackbar sb_with_action" ]
                 [ span [] [ text str ]
-                , span [ class "action", onClick <| ButtonClick ref ] [ text btn ]
+                , span [ class "sb_action", onClick ref ] [ text btn ]
                 ]
 
         None ->
-            div [ class "snackbar hidden" ]
+            div [ class "snackbar sb_hidden" ]
                 [ span [] [ text " " ]
                 ]

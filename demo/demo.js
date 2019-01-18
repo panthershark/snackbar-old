@@ -2314,6 +2314,52 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 
 
 
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
+	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2(elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
+
+
+
 
 // HELPERS
 
@@ -4311,6 +4357,7 @@ function _Browser_load(url)
 	}));
 }
 var cbanc$snackbar$Snackbar$None = {$: 'None'};
+var cbanc$snackbar$Snackbar$hidden = cbanc$snackbar$Snackbar$None;
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
@@ -4790,7 +4837,7 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var cbanc$snackbar$Demo$init = function (_n0) {
 	return _Utils_Tuple2(
-		{alert: elm$core$Maybe$Nothing, snackbar: cbanc$snackbar$Snackbar$None},
+		{alert: elm$core$Maybe$Nothing, snackbar: cbanc$snackbar$Snackbar$hidden},
 		elm$core$Platform$Cmd$none);
 };
 var elm$core$Platform$Sub$batch = _Platform_batch;
@@ -4801,14 +4848,37 @@ var cbanc$snackbar$Demo$subscriptions = function (model) {
 var cbanc$snackbar$Demo$SnackMessage = function (a) {
 	return {$: 'SnackMessage', a: a};
 };
-var cbanc$snackbar$Snackbar$Hide = function (a) {
-	return {$: 'Hide', a: a};
+var cbanc$snackbar$Demo$sbDelay = elm$core$Maybe$Just(8000);
+var cbanc$snackbar$Snackbar$Action = function (a) {
+	return {$: 'Action', a: a};
 };
-var elm$core$Basics$always = F2(
-	function (a, _n0) {
-		return a;
+var cbanc$snackbar$Snackbar$StartDelay = F2(
+	function (a, b) {
+		return {$: 'StartDelay', a: a, b: b};
 	});
-var elm$core$Process$sleep = _Process_sleep;
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var cbanc$snackbar$Snackbar$default_id = -1;
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -4960,116 +5030,238 @@ var elm$core$Task$perform = F2(
 			elm$core$Task$Perform(
 				A2(elm$core$Task$map, toMessage, task)));
 	});
-var cbanc$snackbar$Snackbar$delay = F2(
-	function (millis, sb) {
-		return A2(
-			elm$core$Task$perform,
-			elm$core$Basics$always(
-				cbanc$snackbar$Snackbar$Hide(sb)),
-			elm$core$Process$sleep(millis));
-	});
-var cbanc$snackbar$Snackbar$equal = F2(
-	function (m, n) {
-		var _n0 = _Utils_Tuple2(m, n);
-		_n0$4:
-		while (true) {
-			switch (_n0.a.$) {
-				case 'None':
-					if (_n0.b.$ === 'None') {
-						var _n1 = _n0.a;
-						var _n2 = _n0.b;
-						return true;
-					} else {
-						break _n0$4;
-					}
-				case 'Message':
-					if (_n0.b.$ === 'Message') {
-						var j = _n0.a.a;
-						var k = _n0.b.a;
-						return _Utils_eq(j, k);
-					} else {
-						break _n0$4;
-					}
-				case 'Href':
-					if (_n0.b.$ === 'Href') {
-						var _n3 = _n0.a;
-						var a = _n3.a;
-						var b = _n3.b;
-						var c = _n3.c;
-						var _n4 = _n0.b;
-						var x = _n4.a;
-						var y = _n4.b;
-						var z = _n4.c;
-						return _Utils_eq(a, x) && (_Utils_eq(b, y) && _Utils_eq(c, z));
-					} else {
-						break _n0$4;
-					}
-				default:
-					if (_n0.b.$ === 'Action') {
-						var _n5 = _n0.a;
-						var a = _n5.a;
-						var b = _n5.b;
-						var c = _n5.c;
-						var _n6 = _n0.b;
-						var x = _n6.a;
-						var y = _n6.b;
-						var z = _n6.c;
-						return _Utils_eq(a, x) && (_Utils_eq(b, y) && _Utils_eq(c, z));
-					} else {
-						break _n0$4;
-					}
-			}
-		}
-		return false;
-	});
-var elm$core$Platform$Cmd$map = _Platform_map;
-var cbanc$snackbar$Demo$update = F2(
-	function (msg, model) {
-		if (msg.$ === 'UpdateSnackbar') {
-			var sb = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{alert: elm$core$Maybe$Nothing, snackbar: sb}),
-				A2(
-					elm$core$Platform$Cmd$map,
-					cbanc$snackbar$Demo$SnackMessage,
-					A2(cbanc$snackbar$Snackbar$delay, 8000, sb)));
-		} else {
-			if (msg.a.$ === 'ButtonClick') {
-				var action_id = msg.a.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							alert: elm$core$Maybe$Just(action_id + ' was clicked'),
-							snackbar: cbanc$snackbar$Snackbar$None
-						}),
-					elm$core$Platform$Cmd$none);
-			} else {
-				var sb_to_hide = msg.a.a;
-				return A2(cbanc$snackbar$Snackbar$equal, model.snackbar, sb_to_hide) ? _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{snackbar: cbanc$snackbar$Snackbar$None}),
-					elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-			}
-		}
-	});
-var cbanc$snackbar$Demo$UpdateSnackbar = function (a) {
-	return {$: 'UpdateSnackbar', a: a};
+var elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
 };
-var cbanc$snackbar$Snackbar$Action = F3(
-	function (a, b, c) {
-		return {$: 'Action', a: a, b: b, c: c};
+var elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
 	});
-var cbanc$snackbar$Snackbar$Href = F3(
-	function (a, b, c) {
-		return {$: 'Href', a: a, b: b, c: c};
+var elm$time$Time$customZone = elm$time$Time$Zone;
+var elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var elm$time$Time$millisToPosix = elm$time$Time$Posix;
+var elm$time$Time$now = _Time_now(elm$time$Time$millisToPosix);
+var cbanc$snackbar$Snackbar$action = F4(
+	function (millis, str, btn, ref) {
+		return _Utils_Tuple2(
+			cbanc$snackbar$Snackbar$Action(
+				{btn: btn, id: cbanc$snackbar$Snackbar$default_id, ref: ref, str: str}),
+			A2(
+				elm$core$Maybe$withDefault,
+				elm$core$Platform$Cmd$none,
+				A2(
+					elm$core$Maybe$map,
+					function (ms) {
+						return A2(
+							elm$core$Task$perform,
+							cbanc$snackbar$Snackbar$StartDelay(ms),
+							elm$time$Time$now);
+					},
+					millis)));
+	});
+var cbanc$snackbar$Snackbar$Href = function (a) {
+	return {$: 'Href', a: a};
+};
+var cbanc$snackbar$Snackbar$link = F4(
+	function (millis, str, btn, target) {
+		return _Utils_Tuple2(
+			cbanc$snackbar$Snackbar$Href(
+				{btn: btn, id: cbanc$snackbar$Snackbar$default_id, ref: target, str: str}),
+			A2(
+				elm$core$Maybe$withDefault,
+				elm$core$Platform$Cmd$none,
+				A2(
+					elm$core$Maybe$map,
+					function (ms) {
+						return A2(
+							elm$core$Task$perform,
+							cbanc$snackbar$Snackbar$StartDelay(ms),
+							elm$time$Time$now);
+					},
+					millis)));
 	});
 var cbanc$snackbar$Snackbar$Message = function (a) {
 	return {$: 'Message', a: a};
 };
+var cbanc$snackbar$Snackbar$message = F2(
+	function (millis, str) {
+		return _Utils_Tuple2(
+			cbanc$snackbar$Snackbar$Message(
+				{id: cbanc$snackbar$Snackbar$default_id, str: str}),
+			A2(
+				elm$core$Maybe$withDefault,
+				elm$core$Platform$Cmd$none,
+				A2(
+					elm$core$Maybe$map,
+					function (ms) {
+						return A2(
+							elm$core$Task$perform,
+							cbanc$snackbar$Snackbar$StartDelay(ms),
+							elm$time$Time$now);
+					},
+					millis)));
+	});
+var cbanc$snackbar$Snackbar$EndDelay = function (a) {
+	return {$: 'EndDelay', a: a};
+};
+var cbanc$snackbar$Snackbar$unboxId = function (model) {
+	switch (model.$) {
+		case 'Message':
+			var id = model.a.id;
+			return id;
+		case 'Href':
+			var id = model.a.id;
+			return id;
+		case 'Action':
+			var id = model.a.id;
+			return id;
+		default:
+			return 0;
+	}
+};
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
+var elm$core$Process$sleep = _Process_sleep;
+var elm$time$Time$posixToMillis = function (_n0) {
+	var millis = _n0.a;
+	return millis;
+};
+var cbanc$snackbar$Snackbar$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'ButtonClick':
+				var action_id = msg.a;
+				return _Utils_Tuple2(cbanc$snackbar$Snackbar$None, elm$core$Platform$Cmd$none);
+			case 'EndDelay':
+				var id_to_hide = msg.a;
+				return _Utils_eq(
+					cbanc$snackbar$Snackbar$unboxId(model),
+					id_to_hide) ? _Utils_Tuple2(cbanc$snackbar$Snackbar$None, elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			default:
+				var millis = msg.a;
+				var ticks = msg.b;
+				if (_Utils_eq(
+					cbanc$snackbar$Snackbar$unboxId(model),
+					cbanc$snackbar$Snackbar$default_id)) {
+					var id = elm$time$Time$posixToMillis(ticks);
+					switch (model.$) {
+						case 'None':
+							return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+						case 'Message':
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Message(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+						case 'Href':
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Href(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+						default:
+							var x = model.a;
+							return _Utils_Tuple2(
+								cbanc$snackbar$Snackbar$Action(
+									_Utils_update(
+										x,
+										{id: id})),
+								A2(
+									elm$core$Task$perform,
+									elm$core$Basics$always(
+										cbanc$snackbar$Snackbar$EndDelay(id)),
+									elm$core$Process$sleep(millis)));
+					}
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
+		}
+	});
+var elm$core$Platform$Cmd$map = _Platform_map;
+var cbanc$snackbar$Demo$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'Snackage':
+				var _n1 = A2(cbanc$snackbar$Snackbar$message, cbanc$snackbar$Demo$sbDelay, 'Snackbars should make themselves disappear. This one has an 8 second delay.');
+				var sb = _n1.a;
+				var cmd = _n1.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{alert: elm$core$Maybe$Nothing, snackbar: sb}),
+					A2(elm$core$Platform$Cmd$map, cbanc$snackbar$Demo$SnackMessage, cmd));
+			case 'Snacklink':
+				var _n2 = A4(cbanc$snackbar$Snackbar$link, cbanc$snackbar$Demo$sbDelay, 'Link snackbars show a button which navigates to a new address', 'DOGS', 'http://omfgdogs.com');
+				var sb = _n2.a;
+				var cmd = _n2.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{alert: elm$core$Maybe$Nothing, snackbar: sb}),
+					A2(elm$core$Platform$Cmd$map, cbanc$snackbar$Demo$SnackMessage, cmd));
+			case 'Snaction1':
+				var _n3 = A4(cbanc$snackbar$Snackbar$action, cbanc$snackbar$Demo$sbDelay, 'Action snackbars allow update to process Msgs', 'TRY ME', 'try me button');
+				var sb = _n3.a;
+				var cmd = _n3.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{alert: elm$core$Maybe$Nothing, snackbar: sb}),
+					A2(elm$core$Platform$Cmd$map, cbanc$snackbar$Demo$SnackMessage, cmd));
+			case 'Snaction2':
+				var _n4 = A4(cbanc$snackbar$Snackbar$action, cbanc$snackbar$Demo$sbDelay, 'Action snackbars allow update to process Msgs. They send a key to the update dn so you can tell which action was trigger.', 'YO!', 'yo button');
+				var sb = _n4.a;
+				var cmd = _n4.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{alert: elm$core$Maybe$Nothing, snackbar: sb}),
+					A2(elm$core$Platform$Cmd$map, cbanc$snackbar$Demo$SnackMessage, cmd));
+			default:
+				var submsg = msg.a;
+				var _n5 = A2(cbanc$snackbar$Snackbar$update, submsg, model.snackbar);
+				var sb = _n5.a;
+				var cmd = _n5.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							alert: function () {
+								if (submsg.$ === 'ButtonClick') {
+									var action_ref = submsg.a;
+									return elm$core$Maybe$Just(action_ref + ' was clicked');
+								} else {
+									return elm$core$Maybe$Nothing;
+								}
+							}(),
+							snackbar: sb
+						}),
+					A2(elm$core$Platform$Cmd$map, cbanc$snackbar$Demo$SnackMessage, cmd));
+		}
+	});
+var cbanc$snackbar$Demo$Snackage = {$: 'Snackage'};
+var cbanc$snackbar$Demo$Snacklink = {$: 'Snacklink'};
+var cbanc$snackbar$Demo$Snaction1 = {$: 'Snaction1'};
+var cbanc$snackbar$Demo$Snaction2 = {$: 'Snaction2'};
 var cbanc$snackbar$Snackbar$ButtonClick = function (a) {
 	return {$: 'ButtonClick', a: a};
 };
@@ -5128,7 +5320,7 @@ var elm$html$Html$Events$onClick = function (msg) {
 var cbanc$snackbar$Snackbar$view = function (snack) {
 	switch (snack.$) {
 		case 'Message':
-			var message = snack.a;
+			var str = snack.a.str;
 			return A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -5142,13 +5334,13 @@ var cbanc$snackbar$Snackbar$view = function (snack) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text(message)
+								elm$html$Html$text(str)
 							]))
 					]));
 		case 'Href':
-			var message = snack.a;
-			var btn_text = snack.b;
-			var target_href = snack.c;
+			var str = snack.a.str;
+			var btn = snack.a.btn;
+			var ref = snack.a.ref;
 			return A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -5162,24 +5354,24 @@ var cbanc$snackbar$Snackbar$view = function (snack) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text(message)
+								elm$html$Html$text(str)
 							])),
 						A2(
 						elm$html$Html$a,
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$class('action'),
-								elm$html$Html$Attributes$href(target_href)
+								elm$html$Html$Attributes$href(ref)
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text(btn_text)
+								elm$html$Html$text(btn)
 							]))
 					]));
 		case 'Action':
-			var message = snack.a;
-			var btn_text = snack.b;
-			var tag = snack.c;
+			var str = snack.a.str;
+			var btn = snack.a.btn;
+			var ref = snack.a.ref;
 			return A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -5193,7 +5385,7 @@ var cbanc$snackbar$Snackbar$view = function (snack) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text(message)
+								elm$html$Html$text(str)
 							])),
 						A2(
 						elm$html$Html$span,
@@ -5201,11 +5393,11 @@ var cbanc$snackbar$Snackbar$view = function (snack) {
 							[
 								elm$html$Html$Attributes$class('action'),
 								elm$html$Html$Events$onClick(
-								cbanc$snackbar$Snackbar$ButtonClick(tag))
+								cbanc$snackbar$Snackbar$ButtonClick(ref))
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text(btn_text)
+								elm$html$Html$text(btn)
 							]))
 					]));
 		default:
@@ -5227,15 +5419,6 @@ var cbanc$snackbar$Snackbar$view = function (snack) {
 					]));
 	}
 };
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
@@ -5256,9 +5439,7 @@ var cbanc$snackbar$Demo$view = function (_n0) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(
-						cbanc$snackbar$Demo$UpdateSnackbar(
-							cbanc$snackbar$Snackbar$Message('Message only snackbars are used to notify someone. They should make themselves disappear')))
+						elm$html$Html$Events$onClick(cbanc$snackbar$Demo$Snackage)
 					]),
 				_List_fromArray(
 					[
@@ -5268,9 +5449,7 @@ var cbanc$snackbar$Demo$view = function (_n0) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(
-						cbanc$snackbar$Demo$UpdateSnackbar(
-							A3(cbanc$snackbar$Snackbar$Href, 'Href snackbars show a button which navigates to a new address', 'DOGS', 'http://omfgdogs.com')))
+						elm$html$Html$Events$onClick(cbanc$snackbar$Demo$Snacklink)
 					]),
 				_List_fromArray(
 					[
@@ -5280,9 +5459,7 @@ var cbanc$snackbar$Demo$view = function (_n0) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(
-						cbanc$snackbar$Demo$UpdateSnackbar(
-							A3(cbanc$snackbar$Snackbar$Action, 'Action snackbars allow update to process Msgs', 'TRY ME', 'try me button')))
+						elm$html$Html$Events$onClick(cbanc$snackbar$Demo$Snaction1)
 					]),
 				_List_fromArray(
 					[
@@ -5292,9 +5469,7 @@ var cbanc$snackbar$Demo$view = function (_n0) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(
-						cbanc$snackbar$Demo$UpdateSnackbar(
-							A3(cbanc$snackbar$Snackbar$Action, 'Action snackbars allow update to process Msgs. They send a key to the update dn so you can tell which action was trigger.', 'YO!', 'yo button')))
+						elm$html$Html$Events$onClick(cbanc$snackbar$Demo$Snaction2)
 					]),
 				_List_fromArray(
 					[

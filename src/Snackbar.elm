@@ -98,10 +98,10 @@ visible : Model msg -> Bool
 visible mod =
     case mod of
         None ->
-            True
+            False
 
         _ ->
-            False
+            True
 
 
 update : Msg msg -> Model msg -> ( Model msg, Cmd (Msg msg) )

@@ -1,4 +1,4 @@
-module Snackbar exposing (Model, Msg, action, hidden, link, message, update, view)
+module Snackbar exposing (Model, Msg, action, hidden, link, message, update, view, visible)
 
 import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class, href, id)
@@ -92,6 +92,16 @@ unboxId model =
 
         _ ->
             0
+
+
+visible : Model msg -> Bool
+visible mod =
+    case mod of
+        None ->
+            True
+
+        _ ->
+            False
 
 
 update : Msg msg -> Model msg -> ( Model msg, Cmd (Msg msg) )

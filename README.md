@@ -1,15 +1,6 @@
-# Get Started
-
-```
-yarn install
-yarn run start
-```
-
-It should automatically open the browser to the demo. If not, go here `http://localhost:8000`
-
 # How to create a snackbar
 
-According to Materail spec, snackbars should hide themselves. Allowing them to be closed is int he Caution section. We support both options.
+According to Material spec, snackbars should hide themselves. Allowing them to be closed is int he Caution section. We support both options.
 
 To accomplish this and keep consurrent timeouts staight, use the factory functions.
 

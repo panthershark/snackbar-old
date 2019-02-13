@@ -1,4 +1,33 @@
-module Snackbar exposing (AutoHide(..), Msg, Snackbar, action, hidden, link, message, update, view, visible)
+module Snackbar exposing
+    ( Snackbar, Msg, AutoHide(..)
+    , action, hidden, link, message
+    , update, view
+    , visible
+    )
+
+{-| A Material Design Snackbar!
+
+
+# Definition
+
+@docs Snackbar, Msg, AutoHide
+
+
+# Show / Hide Snackbars
+
+@docs action, hidden, link, message
+
+
+# Integrate with an application
+
+@docs update, view
+
+
+# Utils
+
+@docs visible
+
+-}
 
 import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class, href)
@@ -27,12 +56,8 @@ type alias Snack a =
     }
 
 
-
-{-
-   The Snackbar model
+{-| The Snackbar model
 -}
-
-
 type Snackbar msg
     = None
     | Message (Snack {})
@@ -40,12 +65,8 @@ type Snackbar msg
     | Action (Snack (WithAction msg))
 
 
-
-{-
-   The Snackbar msgs
+{-| The Snackbar msgs
 -}
-
-
 type Msg msg
     = EndDelay Int
     | StartDelay Float Posix
@@ -56,18 +77,15 @@ default_id =
     -1
 
 
+{-| From MD spec - <https://material.io/design/components/snackbars.html#behavior>
 
-{-
-   There are 3 options for auto-hide.
+> Snackbars appear without warning, and don't require user interaction. They automatically disappear from the screen after a minimum of four seconds, and a maximum of ten seconds.
 
-   ShowForever: Don't issue a timeout Cmd. Snackbar will show until programmatically hidden
-   CustomDelay: Set your own value. ex: hide after 6s `Snackbar.CustomDelay 6000`
-   DefaultDelay: Use a default value for auto-hiding the snackbar. actions have longer delay so users have time to click.
-     - `Snackbar.action` default hides after 10s
-     - `Snackbar.link` default hides after 10s
+If you need to customize, you can. The auto-hide in example below is 6 seconds.
+
+      Snackbar.CustomDelay 6000
+
 -}
-
-
 type AutoHide
     = ShowForever
     | DefaultDelay
@@ -79,12 +97,11 @@ delayCmd ms =
     Task.perform (StartDelay ms) Time.now
 
 
+{-| Show a snackbar with only a message. DefaultDelay is 4 seconds
 
-{-
-   Show a snackbar with only a message.
+      Snackbar.message DefaultDelay "Hi!"
+
 -}
-
-
 message : AutoHide -> String -> ( Snackbar msg, Cmd (Msg msg) )
 message delay str =
     ( Message { str = str, id = default_id }
@@ -100,12 +117,11 @@ message delay str =
     )
 
 
+{-| Show a snackbar with a link to another url. DefaultDelay is 10 seconds which gives a user time to click
 
-{-
-   Show a snackbar with a link to another url
+      Snackbar.link DefaultDelay "Your upload is ready." "GO" "https://path-to-thing"
+
 -}
-
-
 link : AutoHide -> String -> String -> String -> ( Snackbar msg, Cmd (Msg msg) )
 link delay str btn target =
     ( Href
@@ -126,12 +142,11 @@ link delay str btn target =
     )
 
 
+{-| Show a snackbar with a button that issues a msg. DefaultDelay is 10 seconds which gives a user time to click
 
-{-
-   Show a snackbar with a button that issues a msg
+      Snackbar.action DefaultDelay "Your thing was deleted." "UNDO" (UndoDelete)
+
 -}
-
-
 action : AutoHide -> String -> String -> msg -> ( Snackbar msg, Cmd (Msg msg) )
 action delay str btn ref =
     ( Action
@@ -152,12 +167,11 @@ action delay str btn ref =
     )
 
 
+{-| Hide the snackbar. You might use it in an update function like this
 
-{--
-Hide the snackbar
---}
+      { model | snackbar = Snackbar.hidden }
 
-
+-}
 hidden : Snackbar msg
 hidden =
     None
@@ -179,12 +193,8 @@ unboxId model =
             0
 
 
-
-{-
-   Tells if the snackbar currently visible.
+{-| Tells if the snackbar currently visible.
 -}
-
-
 visible : Snackbar msg -> Bool
 visible mod =
     case mod of
@@ -195,23 +205,19 @@ visible mod =
             True
 
 
+{-| Update function for mapping into your app's update
 
-{-
-    Update function for mapping into your app's update
+      type Msg =
+        SnackMessage (Snackbar.Msg Msg)
 
-   type Msg =
-       nackMessage (Snackbar.Msg Msg)
+      SnackMessage submsg ->
+        let
+          ( sb, cmd ) =
+              Snackbar.update submsg model.snackbar
+        in
+        ( { model | snackbar = sb }, Cmd.map SnackMessage cmd )
 
-
-   SnackMessage submsg ->
-         let
-             ( sb, cmd ) =
-                 Snackbar.update submsg model.snackbar
-         in
-         ( { model | snackbar = sb }, Cmd.map SnackMessage cmd )
 -}
-
-
 update : Msg msg -> Snackbar msg -> ( Snackbar msg, Cmd (Msg msg) )
 update msg model =
     case msg of
@@ -245,14 +251,11 @@ update msg model =
                 ( model, Cmd.none )
 
 
+{-| Render a snackbar. Typical usage:
 
-{-
-   Render a snackbar. Typical usage:
+        Html.map SnackMessage <| Snackbar.view model.snackbar
 
-   Html.map SnackMessage <| Snackbar.view model.snackbar
 -}
-
-
 view : Snackbar msg -> Html msg
 view snack =
     case snack of

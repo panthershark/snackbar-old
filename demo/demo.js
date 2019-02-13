@@ -5400,11 +5400,6 @@ var cbanc$snackbar$Demo$init = function (_n0) {
 		{alert: elm$core$Maybe$Nothing, snackbar: cbanc$snackbar$Snackbar$hidden},
 		elm$core$Platform$Cmd$none);
 };
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
-var cbanc$snackbar$Demo$subscriptions = function (model) {
-	return elm$core$Platform$Sub$none;
-};
 var cbanc$snackbar$Demo$EchoAction = function (a) {
 	return {$: 'EchoAction', a: a};
 };
@@ -10114,8 +10109,15 @@ var elm$url$Url$fromString = function (str) {
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$element = _Browser_element;
+var elm$core$Platform$Sub$batch = _Platform_batch;
+var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var cbanc$snackbar$Demo$main = elm$browser$Browser$element(
-	{init: cbanc$snackbar$Demo$init, subscriptions: cbanc$snackbar$Demo$subscriptions, update: cbanc$snackbar$Demo$update, view: cbanc$snackbar$Demo$view});
+	{
+		init: cbanc$snackbar$Demo$init,
+		subscriptions: elm$core$Basics$always(elm$core$Platform$Sub$none),
+		update: cbanc$snackbar$Demo$update,
+		view: cbanc$snackbar$Demo$view
+	});
 _Platform_export({'Demo':{'init':cbanc$snackbar$Demo$main(
 	elm$json$Json$Decode$succeed(
 		{}))({"versions":{"elm":"0.19.0"},"types":{"message":"Demo.Msg","aliases":{},"unions":{"Demo.Msg":{"args":[],"tags":{"Snackage":[],"Snacklink":[],"Snaction1":[],"Snaction2":[],"SnackMessage":["Snackbar.Msg Demo.Msg"],"EchoAction":["String.String"]}},"Snackbar.Msg":{"args":["msg"],"tags":{"EndDelay":["Basics.Int"],"StartDelay":["Basics.Float","Time.Posix"]}},"String.String":{"args":[],"tags":{"String":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}}}}})}});}(this));

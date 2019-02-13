@@ -1,7 +1,7 @@
 module Snackbar exposing (AutoHide(..), Msg, Snackbar, action, hidden, link, message, update, view, visible)
 
 import Html exposing (Html, a, div, span, text)
-import Html.Attributes exposing (class, href, id)
+import Html.Attributes exposing (class, href)
 import Html.Events exposing (onClick)
 import Process
 import Task
@@ -27,11 +27,23 @@ type alias Snack a =
     }
 
 
+
+{-
+   The Snackbar model
+-}
+
+
 type Snackbar msg
     = None
     | Message (Snack {})
     | Href (Snack WithHref)
     | Action (Snack (WithAction msg))
+
+
+
+{-
+   The Snackbar msgs
+-}
 
 
 type Msg msg
@@ -44,6 +56,18 @@ default_id =
     -1
 
 
+
+{-
+   There are 3 options for auto-hide.
+
+   ShowForever: Don't issue a timeout Cmd. Snackbar will show until programmatically hidden
+   CustomDelay: Set your own value. ex: hide after 6s `Snackbar.CustomDelay 6000`
+   DefaultDelay: Use a default value for auto-hiding the snackbar. actions have longer delay so users have time to click.
+     - `Snackbar.action` default hides after 10s
+     - `Snackbar.link` default hides after 10s
+-}
+
+
 type AutoHide
     = ShowForever
     | DefaultDelay
@@ -53,6 +77,12 @@ type AutoHide
 delayCmd : Float -> Cmd (Msg msg)
 delayCmd ms =
     Task.perform (StartDelay ms) Time.now
+
+
+
+{-
+   Show a snackbar with only a message.
+-}
 
 
 message : AutoHide -> String -> ( Snackbar msg, Cmd (Msg msg) )
@@ -68,6 +98,12 @@ message delay str =
         CustomDelay ms ->
             delayCmd ms
     )
+
+
+
+{-
+   Show a snackbar with a link to another url
+-}
 
 
 link : AutoHide -> String -> String -> String -> ( Snackbar msg, Cmd (Msg msg) )
@@ -90,6 +126,12 @@ link delay str btn target =
     )
 
 
+
+{-
+   Show a snackbar with a button that issues a msg
+-}
+
+
 action : AutoHide -> String -> String -> msg -> ( Snackbar msg, Cmd (Msg msg) )
 action delay str btn ref =
     ( Action
@@ -108,6 +150,12 @@ action delay str btn ref =
         CustomDelay ms ->
             delayCmd ms
     )
+
+
+
+{--
+Hide the snackbar
+--}
 
 
 hidden : Snackbar msg
@@ -131,6 +179,12 @@ unboxId model =
             0
 
 
+
+{-
+   Tells if the snackbar currently visible.
+-}
+
+
 visible : Snackbar msg -> Bool
 visible mod =
     case mod of
@@ -139,6 +193,23 @@ visible mod =
 
         _ ->
             True
+
+
+
+{-
+    Update function for mapping into your app's update
+
+   type Msg =
+       nackMessage (Snackbar.Msg Msg)
+
+
+   SnackMessage submsg ->
+         let
+             ( sb, cmd ) =
+                 Snackbar.update submsg model.snackbar
+         in
+         ( { model | snackbar = sb }, Cmd.map SnackMessage cmd )
+-}
 
 
 update : Msg msg -> Snackbar msg -> ( Snackbar msg, Cmd (Msg msg) )
@@ -172,6 +243,14 @@ update msg model =
 
             else
                 ( model, Cmd.none )
+
+
+
+{-
+   Render a snackbar. Typical usage:
+
+   Html.map SnackMessage <| Snackbar.view model.snackbar
+-}
 
 
 view : Snackbar msg -> Html msg

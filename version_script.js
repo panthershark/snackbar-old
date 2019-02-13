@@ -1,8 +1,7 @@
-const {writeFileSync} = require('fs');
+const { writeFileSync } = require('fs');
 
-const {version} = require('./package.json');
-const elmJSON = require('./elm.json');
+const packageJSON = require('./package.json');
+const { version } = require('./elm.json');
 
-elmJSON.version = process.env.npm_package_version;
-
-writeFileSync('elm.json', JSON.stringify(elmJSON, null, 4));
+packageJSON.version = version;
+writeFileSync('package.json', JSON.stringify(packageJSON, null, 2));

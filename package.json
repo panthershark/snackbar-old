@@ -1,7 +1,7 @@
 {
   "name": "snackbar",
   "description": "Snackbar Material Module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "None",
   "repository": {
     "type": "git",
@@ -13,10 +13,7 @@
     "sass:build": "node-sass ./src/snackbar.scss -o ./demo",
     "sass:autoprefixer": "postcss demo/snackbar.css --use autoprefixer -d demo/",
     "sass:watch": "chokidar 'src/*.scss' -c 'yarn run sass:build && yarn run sass:autoprefixer'",
-    "build": "yarn install && yarn run elm:build && yarn run sass:build",
-    "preversion": "yarn run build",
-    "version": "node version_script.js && git add -A .",
-    "postversion": "git tag $npm_package_version && git tag -d v$npm_package_version && git push && git push --tags"
+    "build": "yarn install && yarn run elm:build && yarn run sass:build && node version_script.js"
   },
   "devDependencies": {
     "autoprefixer": "^9.4.5",

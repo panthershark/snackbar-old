@@ -1,4 +1,4 @@
-module Snackbar exposing (Model, Msg, action, hidden, link, message, update, view, visible)
+module Snackbar exposing (AutoHide(..), Msg, Snackbar, action, hidden, link, message, update, view, visible)
 
 import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class, href, id)
@@ -27,7 +27,7 @@ type alias Snack a =
     }
 
 
-type Model msg
+type Snackbar msg
     = None
     | Message (Snack {})
     | Href (Snack WithHref)
@@ -44,41 +44,78 @@ default_id =
     -1
 
 
-message : Maybe Float -> String -> ( Model msg, Cmd (Msg msg) )
-message millis str =
-    ( Message { str = str, id = default_id }, Maybe.map (\ms -> Task.perform (StartDelay ms) Time.now) millis |> Maybe.withDefault Cmd.none )
+type AutoHide
+    = ShowForever
+    | DefaultDelay
+    | CustomDelay Float
 
 
-link : Maybe Float -> String -> String -> String -> ( Model msg, Cmd (Msg msg) )
-link millis str btn target =
+delayCmd : Float -> Cmd (Msg msg)
+delayCmd ms =
+    Task.perform (StartDelay ms) Time.now
+
+
+message : AutoHide -> String -> ( Snackbar msg, Cmd (Msg msg) )
+message delay str =
+    ( Message { str = str, id = default_id }
+    , case delay of
+        ShowForever ->
+            Cmd.none
+
+        DefaultDelay ->
+            delayCmd 4000
+
+        CustomDelay ms ->
+            delayCmd ms
+    )
+
+
+link : AutoHide -> String -> String -> String -> ( Snackbar msg, Cmd (Msg msg) )
+link delay str btn target =
     ( Href
         { str = str
         , id = default_id
         , btn = btn
         , ref = target
         }
-    , Maybe.map (\ms -> Task.perform (StartDelay ms) Time.now) millis |> Maybe.withDefault Cmd.none
+    , case delay of
+        ShowForever ->
+            Cmd.none
+
+        DefaultDelay ->
+            delayCmd 10000
+
+        CustomDelay ms ->
+            delayCmd ms
     )
 
 
-action : Maybe Float -> String -> String -> msg -> ( Model msg, Cmd (Msg msg) )
-action millis str btn ref =
+action : AutoHide -> String -> String -> msg -> ( Snackbar msg, Cmd (Msg msg) )
+action delay str btn ref =
     ( Action
         { str = str
         , id = default_id
         , btn = btn
         , ref = ref
         }
-    , Maybe.map (\ms -> Task.perform (StartDelay ms) Time.now) millis |> Maybe.withDefault Cmd.none
+    , case delay of
+        ShowForever ->
+            Cmd.none
+
+        DefaultDelay ->
+            delayCmd 10000
+
+        CustomDelay ms ->
+            delayCmd ms
     )
 
 
-hidden : Model msg
+hidden : Snackbar msg
 hidden =
     None
 
 
-unboxId : Model msg -> Int
+unboxId : Snackbar msg -> Int
 unboxId model =
     case model of
         Message { id } ->
@@ -94,7 +131,7 @@ unboxId model =
             0
 
 
-visible : Model msg -> Bool
+visible : Snackbar msg -> Bool
 visible mod =
     case mod of
         None ->
@@ -104,7 +141,7 @@ visible mod =
             True
 
 
-update : Msg msg -> Model msg -> ( Model msg, Cmd (Msg msg) )
+update : Msg msg -> Snackbar msg -> ( Snackbar msg, Cmd (Msg msg) )
 update msg model =
     case msg of
         EndDelay id_to_hide ->
@@ -137,7 +174,7 @@ update msg model =
                 ( model, Cmd.none )
 
 
-view : Model msg -> Html msg
+view : Snackbar msg -> Html msg
 view snack =
     case snack of
         Message { str } ->

@@ -7,7 +7,7 @@
 
   position: fixed;
   bottom: 23px; // 23 matches materialize FAB.
-  left: 23px;
+  left: 4px;
   background-color: rgba(0, 0, 0, 0.87);
   display: flex;
   border-radius: 4px;
@@ -16,6 +16,10 @@
   width: 344px;
   min-height: 48px;
   padding: 0 8px 0 16px;
+
+  @media only screen and (min-width: 380px) {
+    left: 23px;
+  }
 
   &.sb_message,
   &.sb_with_action {

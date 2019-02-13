@@ -1,3 +1,6 @@
+# Snackbar 
+A material design snackbar written in elm.  [See the demo](https://doanythingfordethklok.github.io/snackbar/demo/index.html)
+
 # How to create a snackbar
 
 According to Material spec, snackbars should hide themselves. Allowing them to be closed is int he Caution section. We support both options.

@@ -4,7 +4,7 @@ import Browser
 import Html exposing (Html, button, div, p, text)
 import Html.Attributes exposing (id)
 import Html.Events exposing (onClick)
-import Snackbar
+import Snackbar exposing (Snackbar)
 
 
 type Msg
@@ -17,7 +17,7 @@ type Msg
 
 
 type alias Model =
-    { snackbar : Snackbar.Model Msg
+    { snackbar : Snackbar Msg
     , alert : Maybe String
     }
 
@@ -27,44 +27,43 @@ init _ =
     ( { snackbar = Snackbar.hidden, alert = Nothing }, Cmd.none )
 
 
-sbDelay : Maybe Float
-sbDelay =
-    Just 8000
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Snackage ->
             let
                 ( sb, cmd ) =
-                    Snackbar.message sbDelay "Snackbars should make themselves disappear. This one has an 8 second delay."
+                    Snackbar.message Snackbar.DefaultDelay "Snackbars should make themselves disappear. This one has a default 4 second delay."
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         Snacklink ->
             let
                 ( sb, cmd ) =
-                    Snackbar.link sbDelay "Link snackbars show a button which navigates to a new address" "DOGS" "http://omfgdogs.com"
+                    Snackbar.link (Snackbar.CustomDelay 6000) "Link snackbars show a button which navigates to a new address" "DOGS" "http://omfgdogs.com"
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         Snaction1 ->
             let
                 ( sb, cmd ) =
-                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs" "TRY ME" (EchoAction "try me button")
+                    Snackbar.action Snackbar.ShowForever "Action snackbars allow update to process Msgs. This one will stay open until you click the action." "CLOSE" (EchoAction "CLOSE")
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         Snaction2 ->
             let
                 ( sb, cmd ) =
-                    Snackbar.action sbDelay "Action snackbars allow update to process Msgs. They send a key to the update dn so you can tell which action was trigger." "YO!" (EchoAction "yo button")
+                    Snackbar.action Snackbar.DefaultDelay "Action snackbars allow update to process Msgs. They send a key to the update fn so you can tell which action was trigger." "YO!" (EchoAction "yo button")
             in
             ( { model | snackbar = sb, alert = Nothing }, Cmd.map SnackMessage cmd )
 
         EchoAction str ->
-            ( { model | alert = Just <| str ++ " was clicked" }, Cmd.none )
+            if str == "CLOSE" then
+                ( { model | alert = Just <| str ++ " was clicked", snackbar = Snackbar.hidden }, Cmd.none )
+
+            else
+                ( { model | alert = Just <| str ++ " was clicked" }, Cmd.none )
 
         SnackMessage submsg ->
             let
@@ -86,16 +85,11 @@ view { snackbar, alert } =
         ]
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
 main : Program {} Model Msg
 main =
     Browser.element
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
+        , subscriptions = always Sub.none
         }

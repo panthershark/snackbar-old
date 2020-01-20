@@ -2,7 +2,7 @@
   "name": "snackbar",
   "description": "Snackbar Material Module",
   "version": "1.0.0",
-  "license": "None",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:panthershark/snackbar.git"

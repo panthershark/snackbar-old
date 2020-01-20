@@ -5,7 +5,7 @@
   "license": "None",
   "repository": {
     "type": "git",
-    "url": "git@gitlab.cbancnetwork.com:web/snackbar.git"
+    "url": "git@github.com:panthershark/snackbar.git"
   },
   "scripts": {
     "elm:build": "elm make ./src/Demo.elm --output=./demo/demo.js",
@@ -16,12 +16,12 @@
     "build": "yarn install && yarn run elm:build && yarn run sass:build && node version_script.js"
   },
   "devDependencies": {
-    "autoprefixer": "^9.4.5",
-    "chokidar-cli": "^1.2.1",
-    "concurrently": "^4.0.1",
-    "elm-live": "^3.2.0",
-    "node-sass": "^4.11.0",
-    "postcss-cli": "^6.1.1"
+    "autoprefixer": "^9.7.4",
+    "chokidar-cli": "^2.1.0",
+    "concurrently": "^5.0.2",
+    "elm-live": "^4.0.1",
+    "node-sass": "^4.13.1",
+    "postcss-cli": "^7.1.0"
   },
   "dependencies": {}
 }
